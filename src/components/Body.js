@@ -1,5 +1,5 @@
 import { RESTAURANT_URL } from "../utils/constant";
-import RestaurantCard from "./RestaurantCard";
+import RestaurantCard, { isOpenFunc } from "./RestaurantCard";
 import Shimmer from "./Shimmer";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -11,8 +11,10 @@ const Body = () => {
   const [restaurants, setRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
 
-  const onlineStatus = useOnlineStatus()
-  if(onlineStatus === false) return <h1>You look offline</h1>
+  const onlineStatus = useOnlineStatus();
+  if (onlineStatus === false) return <h1>You look offline</h1>;
+
+  const RestaurantCardWithOpen = isOpenFunc(RestaurantCard);
 
   function filterData(searchText, restaurants) {
     const filterData = restaurants.filter((restaurant) =>
@@ -42,7 +44,6 @@ const Body = () => {
     );
   };
 
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -58,7 +59,7 @@ const Body = () => {
           <p className="text-xl md:text-2xl mb-8 text-orange-100">
             Order from your favorite restaurants and enjoy delicious meals
           </p>
-          
+
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto">
             <div className="relative">
@@ -100,7 +101,7 @@ const Body = () => {
             </svg>
             <span>Top Rated</span>
           </button>
-          
+
           <button
             className="bg-white hover:bg-red-500 hover:text-white text-red-500 font-semibold px-6 py-3 rounded-full border-2 border-red-500 transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-2"
             onClick={() => {
@@ -108,8 +109,18 @@ const Body = () => {
               setSearchText("");
             }}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
             <span>Clear Filters</span>
           </button>
@@ -129,18 +140,20 @@ const Body = () => {
               Discover amazing dining experiences near you
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredRestaurants.map((restaurant) => {
               return (
                 <Link
                   key={restaurant?.info?.id}
-                  to={'/restaurant/' + restaurant?.info?.id}
+                  to={"/restaurant/" + restaurant?.info?.id}
                   className="group"
                 >
-                  <RestaurantCard
-                    {...restaurant?.info}
-                  />
+                  {restaurant?.info?.isOpen ? (
+                    <RestaurantCardWithOpen {...restaurant?.info} />
+                  ) : (
+                    <RestaurantCard {...restaurant?.info} />
+                  )}
                 </Link>
               );
             })}
