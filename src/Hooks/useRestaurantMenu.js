@@ -1,66 +1,96 @@
-
 import { useEffect, useState } from "react";
-import {
-  MENU_ITEM_TYPE_KEY,
-} from "../utils/constant";
+import { MENU_ITEM_TYPE_KEY, RESTAURANT_URL } from "../utils/constant";
+import { swiggyCusineData } from "../utils/swiggyCusineData";
 
 const useRestaurantMenu = (resId) => {
-    const [restaurant, setRestaurant] = useState(null);
-    const [menuItems, setMenuItems] = useState([]);
-    
-    useEffect(() => {
-        getRestaurantInfo();
-    }, [resId]);
- 
-    async function getRestaurantInfo() {
-        try {
-            // Use the correct API endpoint for individual restaurant menu
-            const response = await fetch(`https://foodfire.onrender.com/api/menu?page-type=REGULAR_MENU&lat=21.1702401&lng=72.83106070000001&restaurantId=${resId}`);
-            const json = await response.json();
-      
-            console.log("Restaurant API Response:", json);
-      
-            // Extract restaurant info from the menu API response
-            const cards = json?.data?.cards;
-            let restaurant = null;
-            
-            // Find restaurant info from the cards
-            if (Array.isArray(cards)) {
-                const restaurantCard = cards?.find(card => 
-                    card?.card?.card?.info?.id === resId
-                );
-                if (restaurantCard?.card?.card?.info) {
-                    restaurant = { info: restaurantCard.card.card.info };
-                }
+  const [restaurant, setRestaurant] = useState(null);
+  const [menuItems, setMenuItems] = useState([]);
+  const [menuCategories, setMenuCategories] = useState([]);
+
+  useEffect(() => {
+    getRestaurantInfo();
+  }, [resId]);
+
+  async function getRestaurantInfo() {
+    try {
+      // Use the correct API endpoint for individual restaurant menu
+
+      const data = await fetch(RESTAURANT_URL);
+      const jsonData = await data.json();
+      const restaurants =
+        jsonData.data.cards[4].card.card.gridElements.infoWithStyle.restaurants;
+
+      console.log(
+        "jsonData",
+        jsonData.data.cards[4].card.card.gridElements.infoWithStyle.restaurants
+      );
+
+      const getRestDataFunc = restaurants.find((element) => {
+        console.log("resId === element.info.id", resId, element.info.id);
+        return resId === element.info.id;
+      });
+
+      console.log("Found restaurant:", getRestDataFunc);
+
+      // Set restaurant info
+      if (getRestDataFunc) {
+        setRestaurant({ info: getRestDataFunc.info });
+      }
+
+      // Extract menu categories from swiggyCusineData for accordion
+      console.log("Using swiggyCusineData for menu categories");
+      const menuCategoriesFromSwiggy =
+        swiggyCusineData.data.cards[4].groupedCard.cardGroupMap.REGULAR.cards
+          ?.filter(
+            (card) =>
+              card?.card?.card?.["@type"] ===
+                "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory" ||
+              card?.card?.card?.["@type"] ===
+                "type.googleapis.com/swiggy.presentation.food.v2.NestedItemCategory"
+          )
+          ?.map((card) => card.card.card) || [];
+
+      console.log(
+        "Menu Categories from swiggyCusineData:",
+        menuCategoriesFromSwiggy
+      );
+      console.log("Menu Categories count:", menuCategoriesFromSwiggy.length);
+
+      // Extract all menu items from categories
+      const allMenuItems = [];
+      menuCategoriesFromSwiggy.forEach((category) => {
+        if (category.itemCards) {
+          category.itemCards.forEach((itemCard) => {
+            const item = itemCard.card?.info;
+            if (item && !allMenuItems.find((x) => x.id === item.id)) {
+              allMenuItems.push(item);
             }
-            
-            setRestaurant(restaurant);
-      
-            // Set menu item data
-            const menuItemsData = json?.data?.cards?.find(x => x.groupedCard)?.
-                                  groupedCard?.cardGroupMap?.REGULAR?.
-                                  cards?.map(x => x.card?.card)?.
-                                  filter(x => x['@type'] == MENU_ITEM_TYPE_KEY)?.
-                                  map(x => x.itemCards).flat().map(x => x.card?.info) || [];
-            
-            console.log("Menu Items Data:", menuItemsData);
-            
-            const uniqueMenuItems = [];
-            menuItemsData.forEach((item) => {
-                if (item && !uniqueMenuItems.find(x => x.id === item.id)) {
-                    uniqueMenuItems.push(item);
-                }
-            });
-            setMenuItems(uniqueMenuItems);
-
-        } catch (error) {
-            setMenuItems([]);
-            setRestaurant(null);
-            console.error("Error fetching restaurant data:", error);
+          });
         }
+        if (category.categories) {
+          category.categories.forEach((subCategory) => {
+            if (subCategory.itemCards) {
+              subCategory.itemCards.forEach((itemCard) => {
+                const item = itemCard.card?.info;
+                if (item && !allMenuItems.find((x) => x.id === item.id)) {
+                  allMenuItems.push(item);
+                }
+              });
+            }
+          });
+        }
+      });
+
+      setMenuCategories(menuCategoriesFromSwiggy);
+      setMenuItems(allMenuItems);
+    } catch (error) {
+      setMenuItems([]);
+      setRestaurant(null);
+      console.error("Error fetching restaurant data:", error);
     }
+  }
 
-    return { restaurant, menuItems };
-}
+  return { restaurant, menuItems, menuCategories };
+};
 
-export default  useRestaurantMenu;
+export default useRestaurantMenu;
