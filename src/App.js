@@ -1,26 +1,29 @@
-import React,{lazy, Suspense} from "react";
+import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import Header from "./components/Header";
 import Body from "./components/Body";
 import Error from "./components/Error";
-import About from "./components/About"
-import Contact from "./components/Contact"
+import About from "./components/About";
+import Contact from "./components/Contact";
 import RestaurantMenu from "./components/RestaurantMenu";
+import { Provider } from "react-redux";
+import appStore from "./Redux/appStore";
 
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import Cart from "./components/Cart";
 
 const Grocery = lazy(() => import("./components/Grocery"));
 
-const AppLayout = () =>{
+const AppLayout = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      < Header />
-      < Outlet />
-    </div>
-
-  )
-
-}
+    <Provider store={appStore}>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+        <Header />
+        <Outlet />
+      </div>
+    </Provider>
+  );
+};
 
 const routerConfig = createBrowserRouter([
   {
@@ -43,16 +46,23 @@ const routerConfig = createBrowserRouter([
       },
       {
         path: "/Grocery",
-        element: <Suspense fallback={<h1>Loading ... </h1>}><Grocery/></Suspense>,
+        element: (
+          <Suspense fallback={<h1>Loading ... </h1>}>
+            <Grocery />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/cart",
+        element: <Cart />,
       },
       {
         path: "/restaurant/:resId",
         element: <RestaurantMenu />,
       },
     ],
-  }
-])
- 
+  },
+]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 

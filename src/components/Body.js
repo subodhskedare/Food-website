@@ -24,7 +24,6 @@ const Body = () => {
   }
 
   function filterDataTopRated(restaurants) {
-    console.log("rating", restaurants[0].info?.avgRating);
     const filterData = restaurants.filter(
       (restaurant) => restaurant?.info?.avgRating > 4
     );
@@ -34,7 +33,6 @@ const Body = () => {
   const fetchData = async () => {
     const data = await fetch(RESTAURANT_URL);
     const jsonData = await data.json();
-    // console.log(jsonData.data.cards[1].card.card.gridElements.infoWithStyle.restaurants[0].info);
 
     setRestaurants(
       jsonData.data.cards[1].card.card.gridElements.infoWithStyle.restaurants

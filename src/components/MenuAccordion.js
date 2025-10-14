@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { ITEM_IMG_CDN_URL } from "../utils/constant";
+import { useDispatch } from "react-redux";
+import { addItems } from "../Redux/cartSlice";
 
 const MenuAccordion = ({ categories }) => {
   const [expandedCategories, setExpandedCategories] = useState(new Set());
-
-  // Debug logging
-  console.log("MenuAccordion received categories:", categories);
-  console.log("Categories count:", categories?.length);
-
+  const dispatch = useDispatch();
   const toggleCategory = (categoryId) => {
     const newExpanded = new Set(expandedCategories);
     if (newExpanded.has(categoryId)) {
@@ -16,6 +14,11 @@ const MenuAccordion = ({ categories }) => {
       newExpanded.add(categoryId);
     }
     setExpandedCategories(newExpanded);
+  };
+
+  const handleOnClick = (item) => {
+    console.log(item);
+    dispatch(addItems(item));
   };
 
   const renderMenuItem = (item) => (
@@ -52,7 +55,10 @@ const MenuAccordion = ({ categories }) => {
             alt={item?.name}
           />
         )}
-        <button className="absolute -bottom-2 -right-2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+        <button
+          className="absolute -bottom-2 -right-2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          onClick={() => handleOnClick(item)}
+        >
           ADD +
         </button>
       </div>
@@ -60,9 +66,12 @@ const MenuAccordion = ({ categories }) => {
   );
 
   const renderCategory = (category, level = 0) => {
-    const isExpanded = expandedCategories.has(category.categoryId || category.title);
+    const isExpanded = expandedCategories.has(
+      category.categoryId || category.title
+    );
     const hasItems = category.itemCards && category.itemCards.length > 0;
-    const hasSubCategories = category.categories && category.categories.length > 0;
+    const hasSubCategories =
+      category.categories && category.categories.length > 0;
 
     return (
       <div key={category.categoryId || category.title} className="mb-4">
@@ -74,7 +83,11 @@ const MenuAccordion = ({ categories }) => {
           onClick={() => toggleCategory(category.categoryId || category.title)}
         >
           <div className="flex items-center justify-between">
-            <h3 className={`text-white font-bold ${level > 0 ? "text-lg" : "text-xl"}`}>
+            <h3
+              className={`text-white font-bold ${
+                level > 0 ? "text-lg" : "text-xl"
+              }`}
+            >
               {category.title}
             </h3>
             <div className="flex items-center space-x-3">

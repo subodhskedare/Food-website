@@ -3,11 +3,13 @@ import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../Hooks/useOnlineStatus";
 import UserContext from "../Hooks/UserContect";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const [isLoggedin, setIsLoggedin] = useState(true);
   const onlineStatus = useOnlineStatus();
   const data = useContext(UserContext);
+  const cartItems = useSelector((store) => store.cart.items);
 
   return (
     <div className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-50">
@@ -66,27 +68,33 @@ const Header = () => {
             </Link>
 
             {/* Cart */}
-            <div className="relative">
-              <button className="text-gray-700 hover:text-orange-500 font-medium transition-colors duration-200 px-3 py-2 rounded-md hover:bg-orange-50 flex items-center space-x-1">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h8.5"
-                  />
-                </svg>
-                <span>Cart</span>
-                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
-              </button>
-            </div>
+            <Link
+              className="text-gray-700 hover:text-orange-500 font-medium transition-colors duration-200 px-3 py-2 rounded-md hover:bg-orange-50"
+              to="/cart"
+            >
+              <div className="relative">
+                <button className="text-gray-700 hover:text-orange-500 font-medium transition-colors duration-200 px-3 py-2 rounded-md hover:bg-orange-50 flex items-center space-x-1">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h8.5"
+                    />
+                  </svg>
+
+                  <span>Cart </span>
+                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItems.length}
+                  </span>
+                </button>
+              </div>
+            </Link>
 
             {/* Login/Logout Button */}
             {isLoggedin ? (

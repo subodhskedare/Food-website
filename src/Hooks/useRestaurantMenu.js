@@ -20,25 +20,18 @@ const useRestaurantMenu = (resId) => {
       const restaurants =
         jsonData.data.cards[4].card.card.gridElements.infoWithStyle.restaurants;
 
-      console.log(
-        "jsonData",
-        jsonData.data.cards[4].card.card.gridElements.infoWithStyle.restaurants
-      );
-
       const getRestDataFunc = restaurants.find((element) => {
-        console.log("resId === element.info.id", resId, element.info.id);
         return resId === element.info.id;
       });
-
-      console.log("Found restaurant:", getRestDataFunc);
 
       // Set restaurant info
       if (getRestDataFunc) {
         setRestaurant({ info: getRestDataFunc.info });
+      } else {
+        setRestaurant({ info: restaurants[0].info });
       }
 
       // Extract menu categories from swiggyCusineData for accordion
-      console.log("Using swiggyCusineData for menu categories");
       const menuCategoriesFromSwiggy =
         swiggyCusineData.data.cards[4].groupedCard.cardGroupMap.REGULAR.cards
           ?.filter(
@@ -49,12 +42,6 @@ const useRestaurantMenu = (resId) => {
                 "type.googleapis.com/swiggy.presentation.food.v2.NestedItemCategory"
           )
           ?.map((card) => card.card.card) || [];
-
-      console.log(
-        "Menu Categories from swiggyCusineData:",
-        menuCategoriesFromSwiggy
-      );
-      console.log("Menu Categories count:", menuCategoriesFromSwiggy.length);
 
       // Extract all menu items from categories
       const allMenuItems = [];
