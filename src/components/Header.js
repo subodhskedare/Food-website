@@ -60,12 +60,12 @@ const Header = () => {
             >
               Contact Us
             </Link>
-            <Link
+            {/* <Link
               className="text-gray-700 hover:text-orange-500 font-medium transition-colors duration-200 px-3 py-2 rounded-md hover:bg-orange-50"
               to="/grocery"
             >
               Grocery
-            </Link>
+            </Link> */}
 
             {/* Cart */}
             <Link
